@@ -1,0 +1,47 @@
+include(ExternalProject)
+
+# ------------------------- GoogleTest Variables --------------------------
+set(GOOGLE_TEST_NAME googletest)
+set(GOOGLE_TEST_GTEST_LIB_NAME gtest)
+set(GOOGLE_TEST_GMOCK_LIB_NAME gmock)
+set(GOOGLE_TEST_PROJECT_NAME googletest-project)
+set(GOOGLE_TEST_GIT_REPO https://github.com/google/googletest.git)
+set(GOOGLE_TEST_GIT_TAG_NAME release-1.8.1)
+set(GOOGLE_TEST_SRC_DIR ${PROJECT_3RD_PARTY_DIR}/${GOOGLE_TEST_NAME})
+set(GOOGLE_TEST_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/${GOOGLE_TEST_NAME})
+set(GOOGLE_TEST_BUILD_LIB_DIR ${GOOGLE_TEST_BUILD_DIR}/lib)
+set(GOOGLE_TEST_BUILD_INC_DIR ${GOOGLE_TEST_BUILD_DIR}/include)
+
+# -------------------------- Add GTest Project ---------------------
+ExternalProject_Add(${GOOGLE_TEST_PROJECT_NAME}
+    GIT_REPOSITORY ${GOOGLE_TEST_GIT_REPO}
+    GIT_TAG ${GOOGLE_TEST_GIT_TAG_NAME}
+    DOWNLOAD_DIR ${PROJECT_3RD_PARTY_DIR}
+    SOURCE_DIR ${GOOGLE_TEST_SRC_DIR}
+    BINARY_DIR ${GOOGLE_TEST_BUILD_LIB_DIR}
+    PREFIX ${GOOGLE_TEST_BUILD_DIR}
+    BUILD_COMMAND make
+    INSTALL_COMMAND make install
+    LIST_SEPARATOR | # Use the alternate list separator
+    CMAKE_ARGS 
+                -DCMAKE_INSTALL_PREFIX=${GOOGLE_TEST_BUILD_DIR}
+)
+
+# -------------------------- Add GTest Library ---------------------
+add_library(${GOOGLE_TEST_GTEST_LIB_NAME} STATIC IMPORTED)
+set_property(TARGET ${GOOGLE_TEST_GTEST_LIB_NAME} PROPERTY IMPORTED_LOCATION ${GOOGLE_TEST_BUILD_LIB_DIR}/lib${GOOGLE_TEST_GTEST_LIB_NAME}.a)
+add_dependencies(${GOOGLE_TEST_GTEST_LIB_NAME} ${GOOGLE_TEST_PROJECT_NAME})
+
+# -------------------------- Add GMock Library ---------------------
+add_library(${GOOGLE_TEST_GMOCK_LIB_NAME} STATIC IMPORTED)
+set_property(TARGET ${GOOGLE_TEST_GMOCK_LIB_NAME} PROPERTY IMPORTED_LOCATION ${GOOGLE_TEST_BUILD_LIB_DIR}/lib${GOOGLE_TEST_GMOCK_LIB_NAME}.a)
+add_dependencies(${GOOGLE_TEST_GMOCK_LIB_NAME} ${GOOGLE_TEST_PROJECT_NAME})
+
+
+# -------------------------- Google Test Outputs -------------------
+set(GOOGLE_TEST_INC_DIRS    ${GOOGLE_TEST_BUILD_INC_DIR})
+
+set(GOOGLE_TEST_LIBRARIES   ${GOOGLE_TEST_BUILD_LIB_DIR}/lib${GOOGLE_TEST_GTEST_LIB_NAME}.a
+                            ${GOOGLE_TEST_BUILD_LIB_DIR}/lib${GOOGLE_TEST_GMOCK_LIB_NAME}.a)
+
+set(GOOGLE_TEST_DEPENDENCIES ${GOOGLE_TEST_GTEST_LIB_NAME} ${GOOGLE_TEST_GMOCK_LIB_NAME})

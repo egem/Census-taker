@@ -1,0 +1,4 @@
+3rd_party/*
+.*project
+.settings
+build/*

@@ -1,0 +1,16 @@
+# ------------------------ Project Parameters -------------------------
+set(PROJECT_NAME "Census-taker")
+
+set(LIB_NAME ${PROJECT_NAME})
+
+set(PROJECT_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(PROJECT_SRC_DIR ${PROJECT_ROOT_DIR}/src)
+set(PROJECT_INC_DIR ${PROJECT_ROOT_DIR}/inc)
+set(PROJECT_LIB_DIR ${PROJECT_ROOT_DIR}/lib)
+set(PROJECT_EXAMPLE_DIR ${PROJECT_ROOT_DIR}/examples)
+set(PROJECT_3RD_PARTY_DIR ${PROJECT_ROOT_DIR}/3rd_party)
+set(PROJECT_CMAKE_FILES_DIR ${PROJECT_ROOT_DIR}/cmake_files)
+set(PROJECT_TEST_DIR ${PROJECT_ROOT_DIR}/test)
+
+
+
