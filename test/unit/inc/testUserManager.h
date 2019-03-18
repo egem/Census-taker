@@ -9,6 +9,7 @@
 #define TEST_UNIT_INC_TESTUSERMANAGER_H_
 
 #include <memory>
+#include <utility>
 
 #include "gtest/gtest.h"
 
@@ -22,44 +23,53 @@ class Login_Input_UsernameString_and_PasswordString : public ::testing::Test
     std::string m_FunctionName;
     std::stringstream m_TestInfo;
 
-    std::unique_ptr<UserManager> m_UserManager;
-    UserManager* m_UserManager;
-    UserDBRepository* m_UserDBRepository;
-
 public:
+    std::unique_ptr<UserManager> m_UserManager;
+    std::unique_ptr<UserDBRepository> m_UserDBRepository;
+    std::vector<User> m_RegisteredUsers;
+    std::vector<User> m_UnregisteredUsers;
+
+
     Login_Input_UsernameString_and_PasswordString() :
         m_ClassName("UserManager"),
-        m_FunctionName("Status login(std::string username, std::string password)")
+        m_FunctionName("Status login(std::string username, std::string password)"),
+        m_RegisteredUsers(
+                                {
+                                    User(Person("registered_name1", "registered_surname1"), "registered_username1", "registered_password1"),
+                                    User(Person("registered_name2", "registered_surname2"), "registered_username2", "registered_password2"),
+                                    User(Person("registered_name3", "registered_surname3"), "registered_username3", "registered_password3")
+                                }
+                        ),
+        m_UnregisteredUsers(
+                                {
+                                    User(Person("unregistered_name1", "unregistered_surname1"), "unregistered_username1", "unregistered_password1"),
+                                    User(Person("unregistered_name2", "unregistered_surname2"), "unregistered_username2", "unregistered_password2"),
+                                    User(Person("unregistered_name3", "unregistered_surname3"), "unregistered_username3", "unregistered_password3")
+                                }
+                            )
     {
-        m_TestInfo          << "Class Name    : " << m_ClassName << std::endl
+        m_TestInfo          << "Class Name    : " << m_ClassName    << std::endl
                             << "Function Name : " << m_FunctionName << std::endl;
 
-        m_UserManager = nullptr;
-        m_UserDBRepository = nullptr;
     }
 
     virtual void SetUp()
     {
-        if(nullptr != m_UserManager || nullptr != m_UserDBRepository)
+        if(m_UserManager || m_UserDBRepository)
             ASSERT_TRUE(false) << "Check Tear Down Method";
 
-        std::vector<User> users =   {   User(Person("name1", "surname1"), "username1", "password1"),
-                                        User(Person("name2", "surname2"), "username2", "password2"),
-                                        User(Person("name3", "surname3"), "username3", "password3")
-                                    };
+        std::unique_ptr<UserDBRepository> userDBRepository(new UserDBRepositoryStub(m_RegisteredUsers));
+        std::unique_ptr<UserManager> userManager(new UserManager(*userDBRepository));
 
-        m_UserDBRepository = new UserDBRepositoryStub(users);
-        m_UserManager = new UserManager(*m_UserDBRepository);
+        m_UserDBRepository = std::move(userDBRepository);
+        m_UserManager = std::move(userManager);
 
     }
 
     virtual void TearDown()
     {
-        if(nullptr != m_UserDBRepository)
-        {
-            delete m_UserDBRepository;
-            m_UserDBRepository = nullptr;
-        }
+        m_UserManager.release();
+        m_UserDBRepository.release();
     }
 
     std::string TestInfo()

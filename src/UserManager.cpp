@@ -6,7 +6,9 @@
  */
 
 #include "UserManager.h"
-
+#include <utility>
+#include <map>
+#include <cassert>
 
 UserManager::UserManager(UserDBRepository& dbInstance)
 :m_dbInstance(dbInstance)
@@ -54,6 +56,23 @@ UserManager::Status UserManager::checkPassword(const std::string& password)
     return Status::Success;
 }
 
+std::string UserManager::getStatusMessage(Status status)
+{
+    static std::map<Status, std::string> statusMessage =  {     std::make_pair(Status::Success,                         "Success"),
+                                                                std::make_pair(Status::InputError,                      "Input Error"),
+                                                                std::make_pair(Status::UserNotFound,                    "User Not Found"),
+                                                                std::make_pair(Status::AlreadyDefinedUser,              "Already Defined User"),
+                                                                std::make_pair(Status::UsernameHasInvalidCharacter,     "Username has invalid character"),
+                                                                std::make_pair(Status::WeakPasswordError,               "Weak Password Error"),
+                                                                std::make_pair(Status::WrongPassword,                   "Wrong Password"),
+                                                                std::make_pair(Status::PasswordHasInvalidCharacter,     "Password has invalid Character"),
+                                                                std::make_pair(Status::UndefinedError,                  "Undefined Error")
+    };
+
+    assert(statusMessage.size() == ((int)Status::Count));
+    return statusMessage[status];
+}
+
 UserManager::Status UserManager::login(std::string username, std::string password)
 {
     std::string userPassword;
@@ -80,7 +99,7 @@ UserManager::Status UserManager::login(std::string username, std::string passwor
         }
         else
         {
-            return Status::WrondPassword;
+            return Status::WrongPassword;
         }
     }
     else
@@ -105,7 +124,7 @@ UserManager::Status UserManager::signup(User& newUser)
     if(Status::Success != status)
         return status;
 
-    dbStatus = m_dbInstance.setUser(newUser.getUsername(), newUser);
+    dbStatus = m_dbInstance.setUser(newUser);
 
     return convertDBStatus(dbStatus);
 }

@@ -26,9 +26,10 @@ public:
         AlreadyDefinedUser,
         UsernameHasInvalidCharacter,
         WeakPasswordError,
-        WrondPassword,
+        WrongPassword,
         PasswordHasInvalidCharacter,
-        UndefinedError
+        UndefinedError,
+        Count
     };
 
 private:
@@ -42,6 +43,7 @@ private:
 public:
     UserManager(UserDBRepository& dbInstance);
 
+    static std::string getStatusMessage(Status status);
     Status login(std::string username, std::string password);
     Status signup(User& newUser);
 

@@ -22,9 +22,9 @@ public:
 
     UserDBRepositoryStub(std::vector<User> users) : m_Users(users){}
 
-    bool isUserExist(std::string username)
+    bool isUserExist(std::string username) const
     {
-        for(User user : m_Users)
+        for(User const& user : m_Users)
         {
             if(user.getUsername() == username)
                 return true;
@@ -33,9 +33,9 @@ public:
         return false;
     }
 
-    Status getUser(std::string username, User& userFound)
+    Status getUser(std::string username, User& userFound) const
     {
-        for(User user : m_Users)
+        for(User const& user : m_Users)
         {
             if(user.getUsername() == username)
             {
@@ -47,9 +47,9 @@ public:
         return Status::UserNotFound;
     }
 
-    User getUser(std::string username) throw(UserNotFound)
+    User getUser(std::string username) const noexcept(false)
     {
-        for(User user : m_Users)
+        for(User const& user : m_Users)
         {
             if(user.getUsername() == username)
             {
@@ -60,32 +60,32 @@ public:
         throw UserNotFound();
     }
 
-    Status setUser(const User& user)
+    Status setUser(User const& user)
     {
-        if(true == isUserExist())
+        if(true == isUserExist(user.getUsername()))
             return Status::AlreadyDefinedUser;
 
         m_Users.push_back(user);
         return Status::Success;
     }
 
-    Status getUserPassword(std::string username, std::string& password)
+    Status getUserPassword(std::string username, std::string& password) const
     {
-        for(User user : m_Users)
+        for(User const& user : m_Users)
         {
             if(user.getUsername() == username)
             {
                 password = user.getPassword();
-                return Status::UserNotFound;
+                return Status::Success;
             }
         }
 
-        return Status::Success;
+        return Status::UserNotFound;
     }
 
-    std::string getUserPassword(std::string username) throw(UserNotFound)
+    std::string getUserPassword(std::string username) const noexcept(false)
     {
-        for(User user : m_Users)
+        for(User const& user : m_Users)
         {
             if(user.getUsername() == username)
                 return user.getPassword();
@@ -96,7 +96,7 @@ public:
 
     Status setUserPassword(std::string username, std::string password)
     {
-        for(User user : m_Users)
+        for(User& user : m_Users)
         {
             if(user.getUsername() == username)
             {
